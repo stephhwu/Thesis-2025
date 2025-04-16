@@ -9,14 +9,24 @@
       </p>
     </div>
     
-    <!-- <div class="vertical-line"></div> -->
-    
-    <div class="marker-wrapper">
-      <div class="marker">
-        <div class="grab"></div>
-      </div>
-      <div class="timeline-year">1700s</div>
+    <!-- Timeline track with drag instructions -->
+    <div class="timeline-track">
+      <div class="drag-instructions">Drag the marker to navigate</div>
     </div>
+    
+    <!-- Draggable marker with handle -->
+    <div class="marker-wrapper" ref="markerWrapper">
+      <div class="marker">
+        <div class="grab-handle">
+          <div class="drag-line"></div>
+          <div class="drag-line"></div>
+          <div class="drag-line"></div>
+        </div>
+      </div>
+      <div class="timeline-year">{{ currentYear }}</div>
+    </div>
+
+
 
     <div class="slider">
       <div class="slider-wrapper" ref="sliderWrapper">
@@ -30,8 +40,12 @@
 </template>
 
 <script>
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount, computed } from 'vue';
 import { gsap } from 'gsap';
+import { Draggable } from 'gsap/Draggable';
+
+// Register the Draggable plugin
+gsap.registerPlugin(Draggable);
 
 export default {
   name: 'TimelineSection',
@@ -43,13 +57,15 @@ export default {
   },
   setup(props, { emit }) {
     const sliderWrapper = ref(null);
+    const markerWrapper = ref(null);
     let target = 0;
     let current = 0;
     let ease = 0.075;
     let maxScroll = 0;
     let animationFrame = null;
-    let wheelListener = null;
     let resizeListener = null;
+    let draggableInstance = null;
+    const currentIndex = ref(0);
     
     // Timeline data with years and captions
     const timelineItems = [
@@ -104,85 +120,140 @@ export default {
         caption: 'Dogs continue to evolve alongside humans' 
       }
     ];
+
+    // Computed property for current year based on index
+    const currentYear = computed(() => {
+      return timelineItems[currentIndex.value]?.year || '';
+    });
     
     // Track if we're at the beginning of the timeline
-    const isAtStart = () => {
-      return target <= 0;
-    };
+    const isAtStart = computed(() => {
+      return currentIndex.value === 0;
+    });
 
-    // Add flag to track if we're at the end of the timeline
-    const isAtEnd = () => {
-      return target >= maxScroll - 10; // Allow small buffer for rounding errors
-    };
+    // Track if we're at the end of the timeline
+    const isAtEnd = computed(() => {
+      return currentIndex.value === timelineItems.length - 1;
+    });
 
     function lerp(start, end, factor) {
       return start + (end - start) * factor;
     }
 
-    function updateTimelineYear(markerMove, markerMaxMove) {
-      const partWidth = markerMaxMove / timelineItems.length;
-      let currentIndex = Math.min(
-        timelineItems.length - 1, 
-        Math.max(0, Math.round((markerMove - 70) / partWidth))
+    // Update the timeline based on marker position
+    function updateTimelineFromMarkerPosition(markerX) {
+      // Calculate which timeline item we're closest to
+      const trackWidth = window.innerWidth - 200; // Account for marker width and padding
+      const progress = (markerX - 70) / trackWidth;
+      const index = Math.min(
+        timelineItems.length - 1,
+        Math.max(0, Math.floor(progress * timelineItems.length))
       );
-      document.querySelector(".timeline-year").textContent = timelineItems[currentIndex].year;
+      
+      currentIndex.value = index;
+      
+      // Calculate target position for the slider
+      const slideWidth = 600; // Width of slide + gap
+      target = index * slideWidth;
+    }
+
+    // Move the timeline by a specific number of items
+    function moveTimeline(direction) {
+      const newIndex = Math.min(
+        timelineItems.length - 1,
+        Math.max(0, currentIndex.value + direction)
+      );
+      
+      if (newIndex !== currentIndex.value) {
+        currentIndex.value = newIndex;
+        
+        // Calculate new marker position
+        const trackWidth = window.innerWidth - 200;
+        const markerPosition = 70 + (trackWidth * newIndex / (timelineItems.length - 1));
+        
+        // Animate the marker
+        gsap.to(markerWrapper.value, {
+          x: markerPosition,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+        
+        // Calculate target position for the slider
+        const slideWidth = 600; // Width of slide + gap
+        target = newIndex * slideWidth;
+      }
     }
 
     function update() {
+      // Smooth the animation
       current = lerp(current, target, ease);
-
-      gsap.set(".slider-wrapper", {
-        x: -current,
-      });
-
-      let moveRatio = current / maxScroll;
-      let markerMaxMove = window.innerWidth - document.querySelector(".marker-wrapper").offsetWidth - 170;
-      let markerMove = 70 + moveRatio * markerMaxMove;
       
-      gsap.set(".marker-wrapper", {
-        x: markerMove,
-      });
-
-      updateTimelineYear(markerMove, markerMaxMove);
-
+      // Update slider position
+      if (sliderWrapper.value) {
+        gsap.set(sliderWrapper.value, {
+          x: -current
+        });
+      }
+      
       animationFrame = requestAnimationFrame(update);
     }
 
+    // Set up draggable marker
+    function setupDraggable() {
+      if (!markerWrapper.value) return;
+      
+      // Calculate bounds for the marker
+      const trackWidth = window.innerWidth - 200;
+      
+      // Create the draggable instance
+      draggableInstance = Draggable.create(markerWrapper.value, {
+        type: "x",
+        bounds: { minX: 70, maxX: trackWidth + 70 },
+        edgeResistance: 0.9,
+        onDrag: function() {
+          updateTimelineFromMarkerPosition(this.x);
+        },
+        onDragEnd: function() {
+          // Snap to the nearest timeline item
+          const trackWidth = window.innerWidth - 200;
+          const markerPosition = 70 + (trackWidth * currentIndex.value / (timelineItems.length - 1));
+          
+          gsap.to(markerWrapper.value, {
+            x: markerPosition,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        }
+      })[0];
+      
+      // Position marker at first item
+      gsap.set(markerWrapper.value, { x: 70 });
+    }
+
     onMounted(() => {
-      maxScroll = sliderWrapper.value.offsetWidth - window.innerWidth;
+      // Start animation loop
+      update();
       
-      // Update wheel event listener to allow vertical scrolling at end of timeline
-      wheelListener = (e) => {
-        // If scrolling up and at start, go back to settings
-        if (e.deltaY < 0 && isAtStart()) {
-          emit('scroll-top');
-          return;
-        }
-        
-        // If scrolling down and at end, allow normal page scrolling
-        if (e.deltaY > 0 && isAtEnd()) {
-          return; // Don't prevent default - allow scrolling to next section
-        }
-        
-        // Otherwise use scroll for horizontal movement
-        target += e.deltaY;
-        target = Math.max(0, Math.min(maxScroll, target));
-        
-        // Prevent default to avoid page scrolling during horizontal navigation
-        e.preventDefault();
-      };
-      
-      window.addEventListener("wheel", wheelListener, { passive: false });
+      // Set up the draggable marker
+      setupDraggable();
       
       // Add resize listener
       resizeListener = () => {
+        // Recalculate dimensions
         maxScroll = sliderWrapper.value.offsetWidth - window.innerWidth;
+        
+        // Update draggable bounds if instance exists
+        if (draggableInstance) {
+          const trackWidth = window.innerWidth - 200;
+          draggableInstance.applyBounds({ minX: 70, maxX: trackWidth + 70 });
+          
+          // Reposition marker based on current index
+          const markerPosition = 70 + (trackWidth * currentIndex.value / (timelineItems.length - 1));
+          gsap.set(markerWrapper.value, { x: markerPosition });
+        }
       };
       
       window.addEventListener("resize", resizeListener);
-      
-      // Start animation
-      update();
       
       // Add title animation
       const timelineTitle = document.querySelector('.timeline-title');
@@ -205,28 +276,51 @@ export default {
           duration: 1
         });
       }
+      
+      // Show drag instructions briefly
+      gsap.to(".drag-instructions", {
+        opacity: 1,
+        duration: 1,
+        delay: 0.5,
+        onComplete: () => {
+          gsap.to(".drag-instructions", {
+            opacity: 0,
+            duration: 1,
+            delay: 3
+          });
+        }
+      });
     });
     
     onBeforeUnmount(() => {
-      window.removeEventListener("wheel", wheelListener, { passive: false });
       window.removeEventListener("resize", resizeListener);
       cancelAnimationFrame(animationFrame);
+      
+      // Kill draggable instance
+      if (draggableInstance) {
+        draggableInstance.kill();
+        draggableInstance = null;
+      }
     });
 
     return {
       sliderWrapper,
-      timelineItems
+      markerWrapper,
+      timelineItems,
+      currentYear,
+      isAtStart,
+      isAtEnd,
+      moveTimeline,
+      currentIndex
     };
   }
 };
 </script>
 
 <style scoped>
-
 .timeline-container {
   width: 100%;
   height: 100vh;
-  /* background: #f2efea; */
   position: relative;
   overflow: hidden;
 }
@@ -263,6 +357,31 @@ export default {
   display: inline-block;
 }
 
+/* Timeline track for visual guidance */
+.timeline-track {
+  position: absolute;
+  top: 140px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(255, 0, 0, 0.3);
+  z-index: 5;
+}
+
+/* Drag instructions tooltip */
+.drag-instructions {
+  position: absolute;
+  top: -40px;
+  left: 11%;
+  transform: translateX(-50%);
+  background-color: rgba(255,0,0,0.8);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  opacity: 0;
+  white-space: nowrap;
+}
 
 /* Individual character styling for animation */
 .timeline-title .char {
@@ -274,7 +393,7 @@ export default {
   width: 100%;
   height: 70vh;
   overflow: hidden;
-  margin-top: 150px; /* Push content down to make room for the title */
+  margin-top: 180px; /* Push content down to make room for the timeline */
 }
 
 .slider-wrapper {
@@ -289,7 +408,6 @@ export default {
 .slide {
   width: 500px;
   height: 500px !important;
-  /* background: #f2efea; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -320,6 +438,11 @@ export default {
   width: max-content;
   height: 100vh;
   z-index: 10;
+  cursor: grab;
+}
+
+.marker-wrapper:active {
+  cursor: grabbing;
 }
 
 .marker {
@@ -340,14 +463,73 @@ export default {
   background-color: #F2EFEB;
   border: 2px solid red;
   border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+}
+
+.grab-handle {
+  position: absolute;
+  top: 120px;
+  left: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 12;
+  cursor: grab;
+}
+
+.grab-handle:active {
+  cursor: grabbing;
+}
+
+.drag-line {
+  width: 20px;
+  height: 2px;
+  background-color: rgba(255, 0, 0, 0.7);
+  margin: 2px 0;
 }
 
 .timeline-year {
   position: absolute;
-  top: 125px; /* Positioned near the circle */
-  left: 40px;
+  top: 170px; /* Moved below the circle */
+  left: 0;
+  width: 100px;
   font-family: "ivypresto-headline", serif;
   font-size: 18px;
   color: #000;
+  text-align: center;
+  transform: translateX(-50%);
+  margin-left: 70px;
+}
+
+
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 0, 0, 1);
+}
+
+.nav-btn:disabled {
+  background-color: rgba(200, 200, 200, 0.5);
+  cursor: not-allowed;
 }
 </style>

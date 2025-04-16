@@ -25,9 +25,7 @@
         <div id="radar-chart" ref="radarChart"></div>
       </div>
     </div>
-    
-    <p class="citation">Source: American Kennel Club</p>
-  </div>
+      </div>
 </template>
 
 <script>
@@ -95,11 +93,11 @@ export default {
       }
     };
 
-    // Radar chart configuration
+    // Updated radar chart configuration
     const radarChartOptions = {
       w: 500 - 100,  // width minus margins
-      h: 500 - 120,  // height minus margins
-      margin: {top: 70, right: 50, bottom: 50, left: 50},
+      h: 600 - 120,  // height minus margins (increased from 500)
+      margin: {top: 100, right: 100, bottom: 100, left: 100}, // Increased margins
       maxValue: 10,
       levels: 5,
       roundStrokes: true,
@@ -134,7 +132,7 @@ export default {
       );
     }
 
-    // Initialize the radar chart
+    // Initialize the radar chart with improved positioning
     function initRadarChart() {
       if (!radarChart.value) return;
       
@@ -143,8 +141,8 @@ export default {
             height = radarChartOptions.h + margin.top + margin.bottom;
       
       const svg = d3.select(radarChart.value).append("svg")
-          .attr("width", width)
-          .attr("height", height)
+          .attr("width", width + 50)  // Add extra width
+          .attr("height", height + 50)  // Add extra height
           .attr("class", "radar");
       
       svgElement = svg;
@@ -207,20 +205,77 @@ export default {
       axis.append("line")
         .attr("x1", 0)
         .attr("y1", 0)
-        .attr("x2", (d, i) => rScale(radarChartOptions.maxValue * 1.1) * Math.cos(angleSlice * i - Math.PI / 2))
-        .attr("y2", (d, i) => rScale(radarChartOptions.maxValue * 1.1) * Math.sin(angleSlice * i - Math.PI / 2))
+        .attr("x2", (d, i) => rScale(radarChartOptions.maxValue * 1.0) * Math.cos(angleSlice * i - Math.PI / 2))
+        .attr("y2", (d, i) => rScale(radarChartOptions.maxValue * 1.) * Math.sin(angleSlice * i - Math.PI / 2))
         .attr("class", "line")
         .style("stroke", "white")
         .style("stroke-width", "2px");
       
-      // Append the labels at each axis
+      // Append the labels at each axis with improved positioning
       axis.append("text")
         .attr("class", "legend")
         .style("font-size", "14px")
-        .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
-        .attr("x", (d, i) => rScale(radarChartOptions.maxValue * 1.25) * Math.cos(angleSlice * i - Math.PI / 2))
-        .attr("y", (d, i) => rScale(radarChartOptions.maxValue * 1.25) * Math.sin(angleSlice * i - Math.PI / 2))
+        .attr("text-anchor", function(d, i) {
+          // Custom text anchor based on position
+          const angle = angleSlice * i - Math.PI / 2;
+          // Bottom label needs "middle", left needs "end", right needs "start"
+          if (Math.abs(Math.sin(angle)) > 0.9) { // Bottom or top
+            return "middle";
+          } else if (Math.cos(angle) < 0) { // Left side
+            return "end";
+          } else { // Right side
+            return "start";
+          }
+        })
+        .attr("dy", function(d, i) {
+          // Adjust vertical position for bottom label
+          const angle = angleSlice * i - Math.PI / 2;
+          return Math.sin(angle) > 0.8 ? "1em" : "0.35em"; // Give more space at bottom
+        })
+        .attr("x", function(d, i) {
+          const angle = angleSlice * i - Math.PI / 2;
+          // Create specific spacing based on the axis position
+          let distanceFactor;
+          
+          if (i === 0) { // Scent Detection (top)
+            distanceFactor = 1.15;
+          } else if (i === 1) { // Protective Nature (top-right)
+            distanceFactor = 1.15;
+          } else if (i === 2) { // Trainability (right)
+            distanceFactor = 1.15;
+          } else if (i === 3) { // Intelligence (bottom)
+            distanceFactor = 1.05;
+          } else if (i === 4) { // Energy Level (bottom-left)
+            distanceFactor = 1.15;
+          } else if (i === 5) { // Adaptability (left)
+            distanceFactor = 1.15;
+          }
+          
+          return rScale(radarChartOptions.maxValue * distanceFactor) * Math.cos(angle);
+        })
+        .attr("y", function(d, i) {
+          const angle = angleSlice * i - Math.PI / 2;
+          // Create specific spacing based on the axis position
+          let distanceFactor;
+          let yOffset = -10; // Move all labels up by 10px
+          
+          if (i === 0) { // Scent Detection (top)
+            distanceFactor = 1.20;
+          } else if (i === 1) { // Protective Nature (top-right)
+            distanceFactor = 1.15;
+          } else if (i === 2) { // Trainability (right)
+            distanceFactor = 1.0;
+          } else if (i === 3) { // Intelligence (bottom)
+            distanceFactor = 1.00;
+            yOffset = 0; // Don't shift the bottom label up
+          } else if (i === 4) { // Energy Level (bottom-left)
+            distanceFactor = 1.05;
+          } else if (i === 5) { // Adaptability (left)
+            distanceFactor = 1.15;
+          }
+          
+          return rScale(radarChartOptions.maxValue * distanceFactor) * Math.sin(angle) + yOffset;
+        })
         .text(d => d)
         .call(wrap, 60);
       
@@ -425,12 +480,18 @@ export default {
 </script>
 
 <style scoped>
-
 .breed-strength-section {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  height: 100vh; /* Ensure it takes full viewport height */
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Add this to create positioning context */
+  isolation: isolate; /* Add this for stacking context isolation */
+  scroll-snap-align: start; /* For section scrolling */
+  scroll-snap-stop: always;
 }
 
 h1 {
@@ -465,30 +526,43 @@ h1 {
   color: white;
 }
 
+/* Update breed-container to ensure it stays within its section */
 .breed-container {
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
+  flex: 1;
+  min-height: 0;
+  position: relative; /* Add this */
+  z-index: 1; /* Ensure proper stacking */
 }
 
+/* Update breed-info to ensure proper positioning */
 .breed-info {
   flex: 1;
   padding-right: 60px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Add this */
+}
+
+/* Make sure the optimal-role is properly contained */
+.optimal-role {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+  position: relative; /* Add this */
+  z-index: 1; /* Add this */
 }
 
 .breed-name {
   font-size: 60px;
   margin-bottom: 5px;
+  margin-top: auto; /* Push to bottom of container */
   opacity: 1;
   position: relative;
   overflow: hidden;
   font-family: "ivypresto-headline", serif;
-}
-
-.optimal-role {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 20px;
 }
 
 .dog-image {
@@ -516,13 +590,6 @@ h1 {
   font-size: 14px;
   pointer-events: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.citation {
-  text-align: right;
-  font-size: 12px;
-  color: #999;
-  margin-top: 30px;
 }
 
 @media (max-width: 768px) {

@@ -12,6 +12,7 @@
     "d3": "^7.9.0",
     "gsap": "^3.12.7",
     "locomotive-scroll": "^4.1.4",
+    "scrollama": "^3.2.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
