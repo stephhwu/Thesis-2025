@@ -54,8 +54,11 @@
     <!-- Sniffer Section - only render when timeline is unlocked -->
     <SnifferSection v-if="timelineUnlocked" ref="snifferSection" />
     
-    <!-- NEW: Tech vs Dog Section - only render when timeline is unlocked -->
+    <!-- Tech vs Dog Section - only render when timeline is unlocked -->
     <TechVsDogSection v-if="timelineUnlocked" ref="techVsDogSection" />
+    
+    <!-- NEW: Outro Section - only render when timeline is unlocked -->
+    <OutroSection v-if="timelineUnlocked" ref="outroSection" />
     
     <!-- Scroll blocker to prevent scrolling past settings until unlocked -->
     <div 
@@ -78,7 +81,8 @@ import DNAFactSection from './DNAFactSection.vue';
 import BreedStrengthSection from './BreedStrengthSection.vue';
 import MatrixSection from './MatrixSection.vue';
 import SnifferSection from './SnifferSection.vue';
-import TechVsDogSection from './TechVsDogSection.vue'; // Import the new component
+import TechVsDogSection from './TechVsDogSection.vue';
+import OutroSection from './OutroSection.vue'; // Import the new component
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, Observer);
@@ -92,7 +96,8 @@ components: {
   BreedStrengthSection,
   MatrixSection,
   SnifferSection,
-  TechVsDogSection // Register the new component
+  TechVsDogSection,
+  OutroSection // Register the new component
 },
 setup(props, { emit }) {
   const titleElement = ref(null);
@@ -102,9 +107,11 @@ setup(props, { emit }) {
   const breedStrengthSection = ref(null);
   const matrixSection = ref(null);
   const snifferSection = ref(null);
-  const techVsDogSection = ref(null); // Add reference to new section
+  const techVsDogSection = ref(null);
+  const outroSection = ref(null); // Add reference to new section
   const timelineUnlocked = ref(false);
   let scrollListenerAdded = false;
+  const searchQuery = ref('');
 
   // Function to scroll to settings
   const scrollToSettings = () => {
@@ -174,6 +181,12 @@ setup(props, { emit }) {
   // Function to handle scroll to top
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.value.trim() === '') return;
+    console.log('Searching for:', searchQuery.value);
+    // Implement actual search logic here
   };
 
   onMounted(() => {
@@ -346,8 +359,11 @@ setup(props, { emit }) {
     breedStrengthSection,
     matrixSection,
     snifferSection,
-    techVsDogSection, // Add to returned refs
+    techVsDogSection,
+    outroSection, // Add to returned refs
     timelineUnlocked,
+    searchQuery,
+    handleSearch,
     scrollToSettings,
     unlockTimeline,
     handleGuideSelection,
@@ -399,5 +415,58 @@ width: 100%;
 height: 100%;
 background: transparent;
 pointer-events: none;
+}
+
+/* Add search bar styles */
+.search-container {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  z-index: 100;
+}
+
+.search-input {
+  width: 250px;
+  height: 40px;
+  border: 2px solid #ff0000;
+  border-radius: 20px 0 0 20px;
+  padding: 0 15px;
+  font-family: "ivypresto-headline", serif;
+  font-size: 16px;
+  background-color: rgba(242, 239, 234, 0.85);
+  backdrop-filter: blur(5px);
+  color: #333;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+  width: 280px;
+}
+
+.search-button {
+  height: 44px;
+  width: 44px;
+  background-color: #ff0000;
+  border: none;
+  border-radius: 0 20px 20px 0;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #cc0000;
+}
+
+.search-icon {
+  font-size: 18px;
 }
 </style>
