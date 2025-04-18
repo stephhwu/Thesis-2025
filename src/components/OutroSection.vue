@@ -1,60 +1,58 @@
 <template>
   <div class="gsap-section">
-    <div class="container">
-      <section class="wrapper-conclusion" ref="wrapperConclusion">
-        <h1>Sniffers Therapists Medical Random!</h1>
+    <nav ref="navRef"><a href="#">Notable Good Boys &amp; Girls</a></nav>
 
-        <div class="card-container" id="card-container-1">
-          <div class="card" id="card-1" ref="card1">
-            <img src="@/assets/images/eba.jpg" alt="Card image 1" />
+
+    <div class="container">
+
+      <section class="wrapper-conclusion" ref="wrapperConclusion">
+   
+
+
+        <div class="card" id="card-1" ref="card1">
+          <div class="card-image">
+            <img src="@/assets/images/eba.jpg" alt="Eba" />
           </div>
-          <div class="card-text">
-            <h2 class="card-headline">Eba</h2>
-            <p class="card-subtext">The Whale Sniffer</p>
-            <p class="card-body">
-              Eba is a springer dog that helps researchers locate whale poop. She can smell whale scat up to a nautical mile away. Her work helps researchers analyze the health of whales, especially prey availability, stress hormones, and toxicants, which tell a larger story about ocean conservation.
-            </p>
-          </div>
-        </div>
-        
-        <div class="card-container" id="card-container-2">
-          <div class="card" id="card-2" ref="card2">
-            <img src="@/assets/images/img-2.jpg" alt="Card image 2" />
-          </div>
-          <div class="card-text">
-            <h2 class="card-headline">Tracker</h2>
-            <p class="card-subtext">The Forest Protector</p>
-            <p class="card-body">
-              Tracker is a Belgian Malinois trained to detect poachers in wildlife reserves. His keen sense of smell can identify human scents from over a mile away, helping rangers intercept illegal hunters before they reach endangered species. His work has contributed to a 30% reduction in poaching incidents.
-            </p>
+          <div class="card-content">
+            <h2 class="card-title">Eba</h2>
+            <h3 class="card-subtitle">The Whale Sniffer</h3>
+            <p class="card-body">Eba is a sniffer dog that helps researchers locate whale poop. She can smell whale scat up to a nautical mile away. Her work helps researchers analyze the reproductive and nutrition hormones, and toxicants, which can tell a larger story about ocean conservation.</p>
           </div>
         </div>
         
-        <div class="card-container" id="card-container-3">
-          <div class="card" id="card-3" ref="card3">
-            <img src="@/assets/images/img-3.jpg" alt="Card image 3" />
+        <div class="card" id="card-2" ref="card2">
+          <div class="card-image">
+            <img src="@/assets/images/elvis.jpg" alt="Elvis" />
           </div>
-          <div class="card-text">
-            <h2 class="card-headline">Luna</h2>
-            <p class="card-subtext">The Disease Detective</p>
-            <p class="card-body">
-              Luna is a Labrador Retriever who detects agricultural diseases before they become visible to farmers. She can identify bacterial and fungal infections in crops weeks before symptoms appear, allowing for targeted treatment and preventing widespread crop loss. Her accuracy rate exceeds 95%.
-            </p>
+          <div class="card-content">
+            <h2 class="card-title">Elvis</h2>
+            <h3 class="card-subtitle">Polar Bear Pregnancy Detector</h3>
+            <p class="card-body">At just 2 years old, Elvis was trained to detect polar bear pregnancies by scent. Inspired by cancer-sniffing dogs, a Cincinnati Zoo scientist developed the idea to help confirm pregnancies early—crucial for preparing the bears and their environment for cubs.</p>
           </div>
         </div>
         
-        <div class="card-container" id="card-container-4">
-          <div class="card" id="card-4" ref="card4">
+        <div class="card" id="card-3" ref="card3">
+          <div class="card-image">
+            <img src="@/assets/images/peppi.jpg" alt="Peppi" />
+          </div>
+          <div class="card-content">
+            <h2 class="card-title">Hospital Companion</h2>
+            <h3 class="card-subtitle">Emotional Support</h3>
+            <p class="card-body">Peppi works at HCA HealthONE Rose medical center in Denver where she helps ease anxiety and burnout for her colleagues who have high stress jobs in the ER.</p>
+          </div>
+        </div>
+        
+        <div class="card" id="card-4" ref="card4">
+          <div class="card-image">
             <img src="@/assets/images/img-4.jpg" alt="Card image 4" />
           </div>
-          <div class="card-text">
-            <h2 class="card-headline">Scout</h2>
-            <p class="card-subtext">The Disaster Rescuer</p>
-            <p class="card-body">
-              Scout is a Border Collie trained for search and rescue after natural disasters. He can detect human scent under debris and rubble, even days after an incident. During his career, he has located over 50 survivors following earthquakes and building collapses around the world.
-            </p>
+          <div class="card-content">
+            <h2 class="card-title">Medical Detection</h2>
+            <h3 class="card-subtitle">Disease Sniffer</h3>
+            <p class="card-body">These specialized dogs can detect certain diseases through scent, including cancer, diabetes, and even COVID-19. Their incredible sense of smell allows them to identify specific chemical compounds associated with various medical conditions, often before traditional tests can detect them.</p>
           </div>
         </div>
+        <h1>Sniffers therapists medical random!</h1>
       </section>
 
       <section class="outro">
@@ -69,9 +67,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// GSAP plugins are registered globally in DogsWithJobs.vue,
-// but we still need to import them here to use them.
-
 export default {
   name: 'OutroSection',
   setup() {
@@ -80,6 +75,7 @@ export default {
     const card2 = ref(null);
     const card3 = ref(null);
     const card4 = ref(null);
+    const navRef = ref(null); // Add ref for nav element
 
     // Store ScrollTrigger instances for cleanup
     const scrollTriggers = [];
@@ -88,8 +84,45 @@ export default {
       // Ensure elements are available
       if (!wrapperConclusion.value) return;
 
+      // Make nav fixed when the section is in view
+      const navTrigger = ScrollTrigger.create({
+        trigger: ".gsap-section",
+        start: "top 10%", // When top of section is 10% from viewport top
+        end: "bottom 10%", // When bottom of section is 10% from viewport bottom
+        onEnter: () => {
+          gsap.to(".gsap-section nav", {
+            position: "fixed",
+            top: "20px",
+            opacity: 1,
+            duration: 0.3
+          });
+        },
+        onLeave: () => {
+          gsap.to(".gsap-section nav", {
+            opacity: 0,
+            duration: 0.3
+          });
+        },
+        onEnterBack: () => {
+          gsap.to(".gsap-section nav", {
+            position: "fixed",
+            top: "20px",
+            opacity: 1,
+            duration: 0.3
+          });
+        },
+        onLeaveBack: () => {
+          gsap.to(".gsap-section nav", {
+            opacity: 0,
+            duration: 0.3
+          });
+        }
+      });
+      scrollTriggers.push(navTrigger);
+
+      // Your existing code continues...
       const cards = [
-        { ref: card1, id: "#card-1", endTranslateX: -2000, rotate: 55 },
+        { ref: card1, id: "#card-1", endTranslateX: -500, rotate: 10 },
         { ref: card2, id: "#card-2", endTranslateX: -1000, rotate: -30 },
         { ref: card3, id: "#card-3", endTranslateX: -2000, rotate: 45 },
         { ref: card4, id: "#card-4", endTranslateX: -1500, rotate: -30 },
@@ -97,16 +130,16 @@ export default {
 
       // Main wrapper animation
       const mainTrigger = ScrollTrigger.create({
-        trigger: wrapperConclusion.value, // Use the ref
+        trigger: wrapperConclusion.value,
         start: "top top",
         end: "+=900vh", // How long the pinning lasts
         scrub: 1,
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => {
-          gsap.to(wrapperConclusion.value, { // Use the ref
+          gsap.to(wrapperConclusion.value, {
             x: `${-600 * self.progress}vw`,
-            duration: 0.5, // Keep duration low with scrub for responsiveness
+            duration: 0.5,
             ease: "power3.out",
           });
         },
@@ -115,39 +148,60 @@ export default {
 
       // Individual card animations
       cards.forEach((card) => {
-        if (!card.ref.value) return; // Check if the card element exists
+        if (!card.ref.value) return;
 
-        const cardTrigger = ScrollTrigger.create({
-          trigger: card.ref.value, // Use the ref for the trigger
-          start: "top top", // Start animation when the card's top hits the viewport top
-          end: "+=1200vh", // Duration of the card's animation scroll
-          scrub: 1,
-          onUpdate: (self) => {
-            gsap.to(card.ref.value, { // Use the ref to target the card
-              x: `${card.endTranslateX * self.progress}px`,
-              rotate: `${card.rotate * self.progress * 2}deg`,
-              duration: 0.5,
-              ease: "power3.out",
-            });
-          },
+        // Create a GSAP timeline for each card to ensure synchronized animations
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: card.ref.value,
+            start: "top top",
+            end: "+=1200vh",
+            scrub: 1,
+            onUpdate: (self) => {
+              // Apply animation to the card element itself
+              gsap.to(card.ref.value, {
+                x: `${card.endTranslateX * self.progress}px`,
+                rotate: `${card.rotate * self.progress * 2}deg`,
+                duration: 0.5,
+                ease: "power3.out",
+                // Force 3D transforms to ensure proper stacking and prevent layout issues
+                force3D: true,
+                // Ensure transforms are applied to the entire card as a unit
+                transformOrigin: "center center"
+              });
+            }
+          }
         });
-        scrollTriggers.push(cardTrigger);
+        
+        // Make sure internal elements maintain their positions relative to the card
+        const cardContent = card.ref.value.querySelector('.card-content');
+        const cardImage = card.ref.value.querySelector('.card-image');
+        
+        if (cardContent && cardImage) {
+          // Set initial positions for internal elements to prevent movement during animation
+          gsap.set([cardContent, cardImage], {
+            position: "relative",
+            xPercent: 0,
+            yPercent: 0
+          });
+        }
+        
+        scrollTriggers.push(tl.scrollTrigger);
       });
 
-       // Optional: Animate the conclusion text fade-in
-       const outroTrigger = ScrollTrigger.create({
-         trigger: ".gsap-section .outro",
-         start: "top 80%", // Start when 80% of the outro section is visible
-         toggleActions: "play none none reverse",
-         onEnter: () => {
-           gsap.fromTo(".gsap-section .outro h1",
-             { opacity: 0, y: 30 },
-             { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-           );
-         }
-       });
-       scrollTriggers.push(outroTrigger);
-
+      // Outro text animation
+      const outroTrigger = ScrollTrigger.create({
+        trigger: ".gsap-section .outro",
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+        onEnter: () => {
+          gsap.fromTo(".gsap-section .outro h1",
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+          );
+        }
+      });
+      scrollTriggers.push(outroTrigger);
     });
 
     onBeforeUnmount(() => {
@@ -162,6 +216,7 @@ export default {
       card2,
       card3,
       card4,
+      navRef // Add navRef to returned refs
     };
   },
 };
@@ -172,7 +227,6 @@ export default {
 .gsap-section {
   position: relative;
   margin-top: 100px; /* Add space after the previous section */
-  /* height: 1200px; */ /* Let content define height, pinning handles duration */
   background-color: #F2EFEB; /* Match background */
   overflow: hidden; /* Prevent horizontal scrollbar */
 }
@@ -191,11 +245,8 @@ export default {
 
 .gsap-section .container {
   width: 100%;
-  /* height: 1200px; */ /* Let content define height */
   position: relative;
 }
-
-/* Removed nav styles as it's likely handled globally */
 
 .gsap-section .wrapper-conclusion {
   position: relative; /* Changed from absolute for pinning */
@@ -208,131 +259,111 @@ export default {
 }
 
 .gsap-section .wrapper-conclusion h1 {
-  position: absolute; /* Keep h1 positioned relative to the wrapper */
-  left: 5vw; /* Position it within the initial view */
-  top: 40%;
+  position: absolute;
+  left: 40vw; /* Increased from 5vw to 15vw to add more space */
+  top: 43%;
   transform: translateY(-50%);
-  width: auto; /* Let text size determine width */
-  color: black;
-  font-size: 40vw; /* Adjusted for better fit */
+  width: auto;
+  color: red;
+  font-size: 35vw;
   font-weight: 400;
-  font-family: "ivypresto-headline", serif; /* Added font */
+  font-family: "ivypresto-headline", serif;
   font-style: italic;
   text-align: left;
-  margin-left: 200px;
   margin: 0;
-  z-index: 10; /* Ensure text is above cards */
-  white-space: nowrap; /* Prevent wrapping */
+  z-index: 1;
+  white-space: nowrap;
 }
 
-/* Card container styles - holds both image and text */
-.gsap-section .card-container {
+.gsap-section .card {
   position: absolute;
-  display: flex;
+  width: 800px; /* Increased to accommodate image + text */
+  height: 300px;
+  background: transparent; /* Changed to transparent */
+  border-radius: 20px;
+  overflow: visible; /* Changed to visible for text overflow */
+  display: flex; /* Use flexbox to arrange image and text side by side */
   align-items: center;
-  width: 800px; /* Adjust based on your layout needs */
+  z-index: 5; /* Add this line to ensure cards are above the heading */
 }
 
-/* Position each card container */
-.gsap-section #card-container-1 {
-  top: 70%;
-  left: 20vw; /* Match your existing card positions */
-  transform: translateY(-40%);
+.gsap-section .card-image {
+  width: 300px;
+  height: 300px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Prevent image from shrinking */
 }
 
-.gsap-section #card-container-2 {
-  top: 25%;
-  left: 200vw;
+.gsap-section .card-content {
+  padding-left: 30px;
+  text-align: left;
+  max-width: 450px;
+  position: relative;
+  overflow: visible;
+  /* These properties help maintain the internal structure during transforms */
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.gsap-section .card-title {
+  font-family: "ivypresto-headline", serif;
+  font-size: 32px;
+  margin: 0 0 5px 0;
+  font-weight: 600;
+}
+
+.gsap-section .card-subtitle {
+  font-family: "ivypresto-headline", serif;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.gsap-section .card-body {
+  font-family: neue-haas-grotesk-display, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: black;
+  font-size: 14px;
+  line-height: normal;
+  margin: 0;
+  text-align: left;
+  position: relative;
+  max-width: 250px;  overflow-wrap: break-word;
+  word-wrap: break-word;
+  margin-top: 70px;
+}
+
+/* Position cards relative to the wide wrapper-conclusion */
+.gsap-section #card-1 {
+  top: 80%;
+  left: 47vw; /* Adjust positioning within the wide wrapper */
   transform: translateY(-50%);
 }
 
-.gsap-section #card-container-3 {
-  top: 45%;
-  left: 280vw;
+.gsap-section #card-2 {
+  top: 20%;
+  left: 110vw;
   transform: translateY(-50%);
 }
 
-.gsap-section #card-container-4 {
+.gsap-section #card-3 {
+  top: 80%;
+  left: 170vw;
+  transform: translateY(-50%);
+}
+
+.gsap-section #card-4 {
   top: 15%;
   left: 360vw;
   transform: translateY(-50%);
 }
 
-/* Card styles - adjusted to fit within container */
-.gsap-section .card {
-  position: relative; /* Changed from absolute */
-  width: 300px;
-  height: 300px;
-  margin-right: 40px; /* Space between image and text */
-  background: gray;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-  flex-shrink: 0; /* Prevent card from shrinking */
-}
-
-/* Text styles */
-.gsap-section .card-text {
-  color: #222;
-  max-width: 400px;
-}
-
-.gsap-section .card-headline {
-  font-family: "ivypresto-headline", serif;
-  font-style: italic;
-  font-size: 40px;
-  margin: 0 0 5px 0;
-  color: #ff0000; /* Red color matching your design */
-}
-
-.gsap-section .card-subtext {
-  font-family: "ivypresto-headline", serif;
-  font-style: italic;
-  font-size: 20px;
-  margin: 0 0 20px 0;
-  color: #222;
-}
-
-.gsap-section .card-body {
-  font-family: "Neue Haas Grotesk Display Pro", Arial, sans-serif;
-  font-weight: 200; /* 35 extra light */
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  margin: 0;
-  max-width: 380px;
-}
-
-/* Mobile adjustments */
-@media (max-width: 900px) {
-  .gsap-section .card-container {
-    flex-direction: column;
-    width: auto;
-  }
-  
-  .gsap-section .card {
-    margin-right: 0;
-    margin-bottom: 20px;
-    width: 250px;
-    height: 250px;
-  }
-  
-  .gsap-section .card-headline {
-    font-size: 30px;
-  }
-  
-  .gsap-section .card-subtext {
-    font-size: 16px;
-  }
-  
-  .gsap-section .card-body {
-    font-size: 12px;
-  }
-}
-
 .gsap-section .outro {
   position: relative; /* Changed from absolute */
-  /* top: 150vh; */ /* Removed absolute positioning */
   width: 100%;
   height: 100vh; /* Full height section after the pinned element */
   display: flex; /* Use flexbox for centering */
@@ -342,10 +373,6 @@ export default {
 }
 
 .gsap-section .outro h1 {
-  /* position: absolute; */ /* Removed absolute positioning */
-  /* top: 50%; */
-  /* left: 50%; */
-  /* transform: translate(-50%, -50%); */ /* Centering handled by flexbox */
   width: max-content;
   max-width: 80%; /* Prevent text from being too wide */
   font-size: 40px;
@@ -356,22 +383,66 @@ export default {
 }
 
 @media (max-width: 900px) {
-  /* .gsap-section .wrapper-conclusion { */
-    /* padding-top: 20em; */ /* Pinning makes padding-top less effective */
-  /* } */
   .gsap-section .wrapper-conclusion h1 {
     font-size: 12vw;
     left: 3vw;
   }
-  .gsap-section .card-container {
-    width: 200px;
-  }
+  
   .gsap-section .card {
+    width: 500px;
+    flex-direction: column; /* Stack image and text vertically on mobile */
+    height: auto;
+  }
+  
+  .gsap-section .card-image {
     width: 200px;
     height: 200px;
   }
-   .gsap-section .outro h1 {
-     font-size: 30px;
-   }
+  
+  .gsap-section .card-content {
+    padding: 20px 0 0 0;
+    max-width: 100%;
+  }
+  
+  .gsap-section .outro h1 {
+    font-size: 30px;
+  }
+  
+  /* Mobile-specific nav styles */
+  .gsap-section nav a {
+    font-size: 18px;
+    padding: 8px 15px;
+  }
+}
+
+/* Update nav styles to work with the ScrollTrigger animation */
+.gsap-section nav {
+  position: fixed; /* Change back to fixed */
+  top: 20px;
+  left: 0;
+  width: 100%;
+  padding: 1em;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0; /* Start hidden, will be shown by ScrollTrigger */
+}
+
+.gsap-section nav a {
+  text-decoration: none;
+  color: black;
+  font-size: 24px;
+  font-family: "ivypresto-headline", serif;
+  font-style: italic;
+  background-color: rgba(242, 239, 235, 0.9); /* More opaque for better visibility */
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.gsap-section nav a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 </style>

@@ -497,7 +497,7 @@
     position: relative;
     width: 80%;
     max-width: 1000px;
-    height: 60vh;
+    height: 40vh;
     margin: 0 auto;
   }
   

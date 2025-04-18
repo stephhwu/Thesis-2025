@@ -5,7 +5,7 @@
         <span ref="textLine1">Although dog breeds vary greatly due to their historical breeding for specific tasks, they still share</span>
         <div class="inline-container">
           <span class="percentage-counter red-text" ref="percentageCounter">0%</span>
-          <span ref="textLine2">of their DNA as <span class="red-text">wolves</span></span>
+          <span ref="textLine2">of their DNA with<span class="red-text"> wolves</span></span>
         </div>
       </p>
     </div>
@@ -169,7 +169,6 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin: 20px 0;
 }
 
 .red-text {
