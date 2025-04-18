@@ -57,7 +57,10 @@
     <!-- Tech vs Dog Section - only render when timeline is unlocked -->
     <TechVsDogSection v-if="timelineUnlocked" ref="techVsDogSection" />
     
-    <!-- NEW: Outro Section - only render when timeline is unlocked -->
+    <!-- NEW: Wildlife Detection Section - only render when timeline is unlocked -->
+    <WildlifeDetectionSection v-if="timelineUnlocked" ref="wildlifeDetectionSection" />
+    
+    <!-- Outro Section - only render when timeline is unlocked -->
     <OutroSection v-if="timelineUnlocked" ref="outroSection" />
     
     <!-- Scroll blocker to prevent scrolling past settings until unlocked -->
@@ -82,7 +85,8 @@ import BreedStrengthSection from './BreedStrengthSection.vue';
 import MatrixSection from './MatrixSection.vue';
 import SnifferSection from './SnifferSection.vue';
 import TechVsDogSection from './TechVsDogSection.vue';
-import OutroSection from './OutroSection.vue'; // Import the new component
+import WildlifeDetectionSection from './WildlifeDetectionSection.vue'; // Import the new component
+import OutroSection from './OutroSection.vue';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, Observer);
@@ -97,7 +101,8 @@ components: {
   MatrixSection,
   SnifferSection,
   TechVsDogSection,
-  OutroSection // Register the new component
+  WildlifeDetectionSection, // Register the new component
+  OutroSection
 },
 setup(props, { emit }) {
   const titleElement = ref(null);
@@ -108,7 +113,8 @@ setup(props, { emit }) {
   const matrixSection = ref(null);
   const snifferSection = ref(null);
   const techVsDogSection = ref(null);
-  const outroSection = ref(null); // Add reference to new section
+  const wildlifeDetectionSection = ref(null); // Add reference to new section
+  const outroSection = ref(null);
   const timelineUnlocked = ref(false);
   let scrollListenerAdded = false;
   const searchQuery = ref('');
@@ -360,7 +366,8 @@ setup(props, { emit }) {
     matrixSection,
     snifferSection,
     techVsDogSection,
-    outroSection, // Add to returned refs
+    wildlifeDetectionSection, // Add to returned refs
+    outroSection,
     timelineUnlocked,
     searchQuery,
     handleSearch,
